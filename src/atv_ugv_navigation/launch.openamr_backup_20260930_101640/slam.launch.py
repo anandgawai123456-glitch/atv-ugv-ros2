@@ -1,0 +1,45 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+
+    scan_frame_relay = Node(
+        package='atv_ugv_navigation',
+        executable='scan_frame_relay',
+        name='scan_frame_relay',
+        output='screen',
+        parameters=[
+            {'use_sim_time': True}
+        ]
+    )
+
+    slam = Node(
+        package='slam_toolbox',
+        executable='async_slam_toolbox_node',
+        name='slam_toolbox',
+        parameters=[
+            '/home/anand/atv_ugv_jazzy/src/atv_ugv_description/config/slam_mapper.yaml'
+        ],
+        output='screen'
+    )
+
+    lifecycle_manager = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_slam',
+        parameters=[
+            {
+                'use_sim_time': True,
+                'autostart': True,
+                'node_names': ['slam_toolbox']
+            }
+        ],
+        output='screen'
+    )
+
+    return LaunchDescription([
+        scan_frame_relay,
+        slam,
+        lifecycle_manager
+    ])

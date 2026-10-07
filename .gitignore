@@ -1,0 +1,12 @@
+build/
+install/
+log/
+.vscode/
+*.pyc
+__pycache__/
+
+# Gazebo / RViz generated files
+Ogre.log
+rosgraph.dot
+*.gv
+*.pdf

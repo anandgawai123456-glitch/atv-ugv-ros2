@@ -1,0 +1,50 @@
+map_server:
+  ros__parameters:
+    use_sim_time: true
+    yaml_filename: "/home/anand/atv_ugv_jazzy/src/atv_ugv_navigation/maps/atv_map.yaml"
+
+amcl:
+  ros__parameters:
+    use_sim_time: true
+
+    map_topic: "/map"
+    map_qos_reliability: "reliable"
+    map_qos_durability: "transient_local"
+    map_qos_history: "keep_last"
+    map_qos_depth: 1
+
+    alpha1: 0.2
+    alpha2: 0.2
+    alpha3: 0.2
+    alpha4: 0.2
+    alpha5: 0.2
+
+    base_frame_id: "base_footprint"
+    odom_frame_id: "odom"
+    global_frame_id: "map"
+
+    scan_topic: "/scan_filtered"
+
+    laser_model_type: "likelihood_field"
+
+    max_beams: 60
+    min_particles: 500
+    max_particles: 2000
+
+    update_min_d: 0.1
+    update_min_a: 0.1
+
+    transform_tolerance: 1.0
+    tf_broadcast: true
+
+    laser_min_range: 0.12
+    laser_max_range: 10.0
+
+    set_initial_pose: true
+    always_reset_initial_pose: false
+
+    initial_pose:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      yaw: 0.0

@@ -1,0 +1,93 @@
+import os
+
+from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+
+    pkg = get_package_share_directory('atv_ugv_navigation')
+
+    perception_launch = os.path.join(
+        pkg,
+        'launch',
+        'perception.launch.py',
+    )
+
+    params_file = os.path.join(
+        pkg,
+        'config',
+        'localization.yaml',
+    )
+
+    perception = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(perception_launch)
+    )
+
+    map_server = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='map_server',
+        output='screen',
+        parameters=[params_file],
+    )
+
+    amcl = Node(
+        package='nav2_amcl',
+        executable='amcl',
+        name='amcl',
+        output='screen',
+        parameters=[
+            params_file,
+            {
+                'use_sim_time': True,
+                'tf_broadcast': True,
+                'global_frame_id': 'map',
+                'odom_frame_id': 'odom',
+                'base_frame_id': 'base_footprint',
+                'set_initial_pose': True,
+                'initial_pose': {
+                    'x': 0.0,
+                    'y': 0.0,
+                    'z': 0.0,
+                    'yaw': 0.0,
+                },
+            },
+        ],
+    )
+
+    map_rviz_relay = Node(
+        package='atv_ugv_navigation',
+        executable='map_rviz_relay',
+        name='map_rviz_relay',
+        output='screen',
+    )
+
+    lifecycle_manager = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_localization',
+        output='screen',
+        parameters=[
+            {
+                'use_sim_time': True,
+                'autostart': True,
+                'node_names': [
+                    'map_server',
+                    'amcl',
+                ],
+            }
+        ],
+    )
+
+    return LaunchDescription([
+        perception,
+        map_server,
+        amcl,
+        map_rviz_relay,
+        lifecycle_manager,
+    ])

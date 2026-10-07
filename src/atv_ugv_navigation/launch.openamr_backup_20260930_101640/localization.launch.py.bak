@@ -1,0 +1,65 @@
+from launch import LaunchDescription
+from launch_ros.actions import Node
+
+
+def generate_launch_description():
+
+    map_server = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='map_server',
+        parameters=[
+            '/home/anand/atv_ugv_jazzy/src/atv_ugv_navigation/config/localization.yaml'
+        ],
+        output='screen'
+    )
+
+    scan_frame_relay = Node(
+          package='atv_ugv_navigation',
+          executable='scan_frame_relay',
+          name='scan_frame_relay',
+          output='screen'
+    )
+    gazebo_rviz_sync = Node(
+         package='atv_ugv_gazebo_sync',
+         executable='gazebo_rviz_sync',
+         name='gazebo_rviz_sync',
+         output='screen',
+         parameters=[
+           {'use_sim_time': True}
+      ]
+)
+
+    
+
+    amcl = Node(
+        package='nav2_amcl',
+        executable='amcl',
+        name='amcl',
+        parameters=[
+            '/home/anand/atv_ugv_jazzy/src/atv_ugv_navigation/config/localization.yaml'
+        ],
+        output='screen'
+    )
+
+    lifecycle_manager = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_localization',
+        parameters=[
+            {
+                'use_sim_time': True,
+                'autostart': True,
+                'node_names': ['map_server', 'amcl']
+            }
+        ],
+        output='screen'
+    )
+
+    return LaunchDescription([
+        scan_frame_relay,
+        gazebo_rviz_sync,
+        map_server,
+        amcl,
+        lifecycle_manager
+    ])

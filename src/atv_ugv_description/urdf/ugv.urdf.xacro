@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+
+<robot name="atv_ugv"
+       xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <material name="red">
+    <color rgba="0.85 0.10 0.00 1.0"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0.05 0.05 0.05 1.0"/>
+  </material>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.182019755" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="40.0"/>
+      <inertia ixx="3.0" ixy="0.0" ixz="0.0"
+               iyy="5.0" iyz="0.0" izz="6.0"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.0957436 -0.0675495 -0.1139803"/>
+      <geometry>
+        <mesh filename="package://atv_ugv_description/meshes/body.stl"
+              scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.03"/>
+      <geometry>
+        <box size="0.35 0.18 0.06"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <xacro:macro name="wheel"
+    params="prefix x y z vx vy vz mesh">
+
+    <link name="${prefix}_link">
+
+      <inertial>
+        <origin xyz="0 0 0"/>
+        <mass value="5.0"/>
+        <inertia
+          ixx="0.06"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.06"
+          iyz="0.0"
+          izz="0.10"/>
+      </inertial>
+
+      <!-- ORIGINAL WHEEL VISUAL -->
+      <visual>
+        <origin xyz="${vx} ${vy} ${vz}" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://atv_ugv_description/meshes/${mesh}"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+
+      <!-- CENTERED PHYSICAL WHEEL -->
+      <collision>
+        <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.08"/>
+        </geometry>
+      </collision>
+
+    </link>
+
+    <joint name="${prefix}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_link"/>
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+
+  </xacro:macro>
+
+  <xacro:wheel
+    prefix="front_left"
+    x="0.11119" y="0.08605" z="-0.132019755"
+    vx="-0.019" vy="-0.140" vz="0.014"
+    mesh="wheel_front_left.stl"/>
+
+  <xacro:wheel
+    prefix="front_right"
+    x="0.11116" y="-0.08805" z="-0.132019755"
+    vx="-0.020" vy="0.006" vz="0.015"
+    mesh="wheel_front_right.stl"/>
+
+  <xacro:wheel
+    prefix="rear_left"
+    x="-0.13591" y="0.09005" z="-0.132019755"
+    vx="0.232" vy="-0.140" vz="0.014"
+    mesh="wheel_rear_left.stl"/>
+
+  <xacro:wheel
+    prefix="rear_right"
+    x="-0.13586" y="-0.08905" z="-0.132019755"
+    vx="0.232" vy="0.006" vz="0.015"
+    mesh="wheel_rear_right.stl"/>
+
+  <link name="lidar_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.035" length="0.04"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.011"/>
+  </joint>
+
+  <xacro:include filename="$(find atv_ugv_description)/urdf/ugv_gazebo.xacro"/>
+  <xacro:include filename="$(find atv_ugv_description)/urdf/ugv_ros2_control.xacro"/>
+
+</robot>
